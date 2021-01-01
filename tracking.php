@@ -56,15 +56,13 @@
           <li><a href="locations.html">Locations</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
-        </ul>
 
       </nav><!-- .nav-menu -->
 
+      <a href="contact.html" class="get-started-btn ml-auto">Get Started</a>
     </div>
-  
-  <a href="contact.html" class="get-started-btn ml-auto">Get Started</a>
 
-  </div>
+
   </header><!-- End Header -->
 
   <main id="main">
@@ -102,7 +100,7 @@
                   <input class="form-control" placeholder="Enter your tracking code" type="text" id="" name="trackcode">
 
                 </div>
-                <button class="btn btn-danger m-auto"  type="submit">Track</button>
+                <button class="btn btn-danger m-auto" type="submit">Track</button>
               </form>
 
 
@@ -114,109 +112,92 @@
 
                 $msg = " Parcel information will be displayed.";
 
-                if ($_GET['trackcode']) {
+                if (isset($_GET['trackcode'])) {
 
                   include 'inc/dbcon.php';
-                  $trackCode = $_GET['trackcode'];
-                  $sql = "SELECT * FROM TrackInfo WHERE trackCode =".$trackCode;
+                  $trackCode = mysqli_real_escape_string($conn, $_GET['trackcode']);
+                  if (empty($trackCode)) {
+                ?> <p class="">Please Enter the Tracking code given to you!.</p> <?php
+                                                                                } else {
+                                                                                  $sql = "SELECT trackCode FROM TrackInfo WHERE trackCode =?";
+                                                                                  $stmt = mysqli_stmt_init($conn);
 
-                    $resultCheck = mysqli_query($conn, $sql);
-                  $rowCount = mysqli_num_rows($resultCheck);
-If ($rowCount > 0) {
-                      echo "<table class='table table-striped table-inverse table-responsive'>
-                      <thead class='thead-inverse'>
+                                                                                  if (!mysqli_stmt_prepare($stmt, $sql)) {
+                                                                                  ?><p>An unkwon error has occured!. Contact support for your tracking information</p><?php
+                                                                                                                                                                    } else {
+                                                                                                                                                                      mysqli_stmt_bind_param($stmt, 's', $trackCode);
+                                                                                                                                                                      mysqli_stmt_execute($stmt);
+
+
+                                                                                                                                                                      mysqli_stmt_store_result($stmt);
+                                                                                                                                                                      $resultCheck = mysqli_stmt_num_rows($stmt);
+                                                                                                                                                                      if ($resultCheck === 0) {
+                                                                                                                                                                      ?><p>GPS tracking signal Lost. Track Code is incorrect. Try again or Contact customer support.</p><?php
+                                                                                                                                                                                                                                                                        mysqli_stmt_close($stmt);
+                                                                                                                                                                                                                                                                      }
+                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                  }
+                                                                                                                                                                                                                                                                  $sql = "SELECT * FROM TrackInfo WHERE trackCode=?";
+                                                                                                                                                                                                                                                                  $stmt = mysqli_stmt_init($conn);
+                                                                                                                                                                                                                                                                  if (!mysqli_stmt_prepare($stmt, $sql)) {
+                                                                                                                                                                                                                                                                        ?><p>An unkwon error has occured!. Contact support for your tracking informatio2n</p><?php
+                                                                                                                                                                                                                                                                                                                                                            } else {
+
+                                                                                                                                                                                                                                                                                                                                                              mysqli_stmt_bind_param($stmt, 's', $trackCode);
+                                                                                                                                                                                                                                                                                                                                                              mysqli_stmt_execute($stmt);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                            $result = mysqli_stmt_get_result($stmt);
+                                                                                                                                                                                                                                                                                                                                                              ?><table class='table table-striped table-inverse table-responsive'>
+                    <thead class='thead-inverse'>
                       <tr>
-                      <th>TrackCode</th>
-                      <th>ShipperName</th>
-                      <th>ShipperAddress</th>
-                      <th>ShipperEmail</th>
-                      <th>ShipperPhone</th>
-                      <th>ReceiverName</th>
-                      <th>ReceiverAddress</th>
-                      <th>ReceiverEmail</th>
-                      <th>ReceiverPhone</th>
-                      <th>ConsignmentType</th>
-                      <th>ConsignmentQuantity</th>
-                      <th>Consignmentweight</th>
-                      <th>ConsignmentHeight</th>
-                      <th>ConsignmentLenght</th>
-                      <th>DateRegistered</th>
+                        <th>TrackCode</th>
+                        <th>ShipperName</th>
+                        <th>ShipperAddress</th>
+                        <th>ShipperEmail</th>
+                        <th>ShipperPhone</th>
+                        <th>ReceiverName</th>
+                        <th>ReceiverAddress</th>
+                        <th>ReceiverEmail</th>
+                        <th>ReceiverPhone</th>
+                        <th>PercelType</th>
+                        <th>PercelQuantity</th>
+                        <th>PercelWeight</th>
+                        <th>PercelHeight</th>
+                        <th>PercelLenght</th>
+                        <th>DateRegistered</th>
                       </tr>
-                      </thead><tbody>";
-                      
-                      while ($row = mysqli_fetch_array($resultCheck)) {
-                        echo "<tr>";
-                        echo "<td>" . $row['trackCode'] . "</td>";
-                        echo "<td>" . $row['shipperName'] . "</td>";
-                        echo "<td>" . $row['shipperAddress'] . "</td>";
-                        echo "<td>" . $row['shipperEmail'] . "</td>";
-                        echo "<td>" . $row['shipperPhone'] . "</td>";
-                        echo "<td>" . $row['receiverName'] . "</td>";
-                        echo "<td>" . $row['receiverAddress'] . "</td>";
-                        
-                        echo "<td>" . $row['receiverEmail'] . "</td>";
-                        echo "<td>" . $row['receiverPhone'] . "</td>";
-                        echo "<td>" . $row['consignmentType'] . "</td>";
-                        echo "<td>" . $row['consignmentQuantity'] . "</td>";
-                        echo "<td>" . $row['consignmentweight'] . "</td>";
-                        echo "<td>" . $row['consignmentHeight'] . "</td>";
-                        echo "<td>" . $row['consignmentLenght'] . "</td>";
-                        echo "<td>" . $row['dateRegistered'] . "</td>";
-                        echo "</tr>";
-                      }
-                      echo "</tbody></table>";
-                      mysqli_close($conn);
-                    }else{ ?><p>Percel code "<?=$trackCode?>" is incorrect or hasn't been registered. Please contact customer support.</p><?Php }
-                  
-                } else {
-                  echo $msg;
-                }
+                    </thead>
+                    <tbody><?php
+                            while ($row = mysqli_fetch_assoc($result)) {
+                            ?>
+                        <tr>
+                          <td> <?= $row['trackCode']; ?> </td>
+                          <td> <?= $row['shipperName']; ?> </td>
+                          <td> <?= $row['shipperAddress']; ?> </td>
+                          <td> <?= $row['shipperEmail']; ?> </td>
+                          <td> <?= $row['shipperPhone']; ?> </td>
+                          <td> <?= $row['receiverName']; ?> </td>
+                          <td> <?= $row['receiverAddress']; ?> </td>
+                          <td> <?= $row['receiverEmail']; ?> </td>
+                          <td> <?= $row['receiverPhone']; ?> </td>
+                          <td> <?= $row['percelType']; ?> </td>
+                          <td> <?= $row['percelQuantity']; ?> </td>
+                          <td> <?= $row['percelWeight']; ?> </td>
+                          <td> <?= $row['percelHeight']; ?> </td>
+                          <td> <?= $row['percelLenght']; ?> </td>
+                          <td> <?= $row['dateRegistered']; ?> </td>
+                        </tr>
 
-                ?>
+                      <?php
+                            }
+                      ?></tbody>
+                  </table><?php?><?php
+                                } else {
+                                  echo $msg;
+                                } ?>
               </div>
 
-              <!-- <table class="table table-striped table-inverse table-responsive">
-                <thead class="thead-inverse">
-                  <tr>
-                    <th>trackCode</th>
-<th>shipperName</th>
-<th>shipperAddress</th>
-<th>shipperEmail</th>
-<th>shipperPhone</th>
-<th>receiverName</th>
-<th>receiverAddress</th>
-<th>receiverPhone</th>
-<th>consignmentType</th>
-<th>consignmentQuantity</th>
-<th>consignmentweight</th>
-<th>consignmentHeight</th>
-<th>consignmentLenght</th>
-<th>dateRegistered</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                     while($row = mysqli_fetch_array($result)) {
-  echo "<tr>";
-  echo "<td>" . $row['trackCode'] . "</td>";
-  echo "<td>" . $row['shipperName'] . "</td>";
-  echo "<td>" . $row['shipperAddress'] . "</td>";
-  echo "<td>" . $row['shipperEmail'] . "</td>";
-  echo "<td>" . $row['shipperPhone'] . "</td>";
-  echo "<td>" . $row['receiverName'] . "</td>";
-  echo "<td>" . $row['receiverAddress'] . "</td>";
-  echo "<td>" . $row['receiverPhone'] . "</td>";
-  echo "<td>" . $row['consignmentType'] . "</td>";
-  echo "<td>" . $row['consignmentQuantity'] . "</td>";
-  echo "<td>" . $row['consignmentweight'] . "</td>";
-  echo "<td>" . $row['consignmentHeight'] . "</td>";
-  echo "<td>" . $row['consignmentLenght'] . "</td>";
-  echo "<td>" . $row['dateRegistered'] . "</td>";
-  echo "</tr>";
-}
-                    
-                  </tbody>
-              </table> -->
+
 
 
             </div>
